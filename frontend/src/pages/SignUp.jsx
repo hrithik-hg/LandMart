@@ -50,14 +50,14 @@ const SignUp = () => {
           onChange={handleChange}
         />
         <input
-          type="text"
+          type="email"
           placeholder="email"
           id="email"
           className="border p-3 rounded-lg"
           onChange={handleChange}
         />
         <input
-          type="text"
+          type="password"
           placeholder="password"
           id="password"
           className="border p-3 rounded-lg"
@@ -72,7 +72,7 @@ const SignUp = () => {
       </form>
 
       <div className="flex  gap-2 mt-5">
-        <p>Have an Account?</p>
+        <p>Have an account?</p>
         <Link to="/sign-in">
           <span className="text-blue-700">Sign In</span>
         </Link>

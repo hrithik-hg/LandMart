@@ -34,8 +34,8 @@ const Header = () => {
             </li>
           </Link>
 
-          <Link to="/sign-in">
-            <li className="text-slate-700 hover:underline">Sing in</li>
+          <Link to="/sign-up">
+            <li className="text-slate-700 hover:underline">Sign In</li>
           </Link>
         </ul>
       </div>

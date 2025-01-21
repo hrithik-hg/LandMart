@@ -1,11 +1,18 @@
 import { React, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux"; // Import useDispatch
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice.js";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Initialize dispatch
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -16,7 +23,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(signInStart()); // Dispatch sign-in start action
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -26,22 +33,20 @@ const SignIn = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        setError(data.message);
-        setLoading(false);
+        dispatch(signInFailure(data.message)); // Dispatch sign-in failure action
         return;
       }
-      setLoading(false);
-      setError(null);
-      navigate('/');
+      dispatch(signInSuccess(data)); // Dispatch sign-in success action
+      navigate("/");
     } catch (error) {
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(error.message)); // Dispatch sign-in failure action
     }
   };
+
   return (
     <div className="p-3 max-w-lg mx-auto">
-      <h1 className="text-3xl text-center font-semibold my-7"> Sign In</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 ">
+      <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           type="text"
           placeholder="username"
@@ -64,7 +69,7 @@ const SignIn = () => {
         </button>
       </form>
 
-      <div className="flex  gap-2 mt-5">
+      <div className="flex gap-2 mt-5">
         <p>Don't have an account?</p>
         <Link to="/sign-up">
           <span className="text-blue-700">Sign Up</span>

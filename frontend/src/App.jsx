@@ -7,6 +7,7 @@ import SignUp from "./pages/SignUp";
 import SingIn from "./pages/SingIn";
 import Header from "./components/Header";
 
+
 function App() {
   return (
     <BrowserRouter>

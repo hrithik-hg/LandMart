@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { updateUserFailure, updateUserSuccess, updateUserStart, deleteUserStart, deleteUserSuccess, deleteUserFailure } from "../redux/user/userSlice";
+import { updateUserFailure, updateUserSuccess, updateUserStart, deleteUserStart, deleteUserSuccess, deleteUserFailure, signOutUserFailure, signOutUserStart, signOutUserSuccess } from "../redux/user/userSlice";
 
 export default function Profile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -106,16 +106,16 @@ export default function Profile() {
 
   async function handleSignoutUser() {
     try {
-      dispatch(signoutUserStart());
+      dispatch(signOutUserStart());
       const res = await fetch(`/api/auth/signout`);
       const data = await res.json();
       if (data.success === false) {
-        dispatch(signoutUserFailure(data.message));
+        dispatch(signOutUserFailure(data.message));
         return;
       }
-      dispatch(signoutUserSuccess(data));
+      dispatch(signOutUserSuccess(data));
     } catch (error) {
-      dispatch(signoutUserFailure(error.message));
+      dispatch(signOutUserFailure(error.message));
     }
   }
 

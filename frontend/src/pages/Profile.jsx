@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { updateUserFailure, updateUserSuccess, updateUserStart } from "../redux/user/userSlice";
+import { updateUserFailure, updateUserSuccess, updateUserStart, deleteUserStart, deleteUserSuccess, deleteUserFailure } from "../redux/user/userSlice";
 
 export default function Profile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);

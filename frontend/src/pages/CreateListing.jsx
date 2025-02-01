@@ -1,13 +1,13 @@
 import { set } from "mongoose";
 import { React, useState } from "react";
-import {useSelector} from 'react-redux';
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const CreateListing = () => {
   const [files, setFiles] = useState([]);
   const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
   const cloudName = import.meta.env.VITE_CLOUD_NAME;
-  const {currentUser} = useSelector(state=> state.user);
+  const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ const CreateListing = () => {
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const data = new FormData();
@@ -102,65 +102,69 @@ const CreateListing = () => {
     });
   };
 
-  const handleChange =(e)=>{
-
-    if(e.target.id === 'sale' || e.target.id === 'rent'){
+  const handleChange = (e) => {
+    if (e.target.id === "sale" || e.target.id === "rent") {
       setFormData({
         ...formData,
-        type: e.target.id
-      })
+        type: e.target.id,
+      });
     }
 
-    if(e.target.id === 'parking' || e.target.id === 'furnished' || e.target.id === 'offer'){
+    if (
+      e.target.id === "parking" ||
+      e.target.id === "furnished" ||
+      e.target.id === "offer"
+    ) {
       setFormData({
         ...formData,
-        [e.target.id]: e.target.checked
-      })
+        [e.target.id]: e.target.checked,
+      });
     }
 
-    if(e.target.type === 'number' || e.target.type === 'text' || e.target.type === 'textarea'){
+    if (
+      e.target.type === "number" ||
+      e.target.type === "text" ||
+      e.target.type === "textarea"
+    ) {
       setFormData({
         ...formData,
-        [e.target.id]: e.target.value
-      })
+        [e.target.id]: e.target.value,
+      });
     }
+  };
 
-  }
-
-  const handleSubmit = async (e)=>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        if(formData.imageUrls.length < 1) return setError('You must upload at least one image');
-        if(+formData.regularPrice < formData.discountedPrice) return set('Discount price must be lower than regular price');
-        setLoading(true);
-        setError(false);
-        const res = await fetch('/api/listing/create',{
-            method: 'POST',
-            headers:{
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                ...formData,
-                userRef: currentUser._id,
-            }),
-        });
+      if (formData.imageUrls.length < 1)
+        return setError("You must upload at least one image");
+      if (+formData.regularPrice < formData.discountedPrice)
+        return set("Discount price must be lower than regular price");
+      setLoading(true);
+      setError(false);
+      const res = await fetch("/api/listing/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          userRef: currentUser._id,
+        }),
+      });
 
-        const data = await res.json();
-        setLoading(false);
-        if(data.success===false){
-            setError(data.message);
-        }
+      const data = await res.json();
+      setLoading(false);
+      if (data.success === false) {
+        setError(data.message);
+      }
 
-        navigate(`/listing/${data._id}`);
-        
+      navigate(`/listing/${data._id}`);
     } catch (error) {
-        setError(error.message);
-        setLoading(false);
-
-        
+      setError(error.message);
+      setLoading(false);
     }
-
-  }
+  };
 
   return (
     <main className="p-3 max-w-4xl mx-auto">
@@ -298,7 +302,7 @@ const CreateListing = () => {
               </div>
             </div>
             {formData.offer && (
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <input
                   type="number"
                   id="discountPrice"
@@ -314,9 +318,7 @@ const CreateListing = () => {
                   <span className="text-xs">(₹ / Month)</span>
                 </div>
               </div>
-
             )}
-            
           </div>
         </div>
 
@@ -368,8 +370,11 @@ const CreateListing = () => {
                 </button>
               </div>
             ))}
-          <button disabled={loading || uploading} className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95">
-            {loading ? 'Creating...' : 'Create Listing'}
+          <button
+            disabled={loading || uploading}
+            className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95"
+          >
+            {loading ? "Creating..." : "Create Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>

@@ -1,5 +1,5 @@
 import { set } from "mongoose";
-import { React, useState } from "react";
+import  React, {useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -31,6 +31,7 @@ const CreateListing = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const data = new FormData();

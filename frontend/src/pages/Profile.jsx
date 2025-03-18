@@ -24,11 +24,16 @@ export default function Profile() {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [showListingsError, setShowListingsError] = useState(false);
   const [userListings, setUserListings] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [listingToDelete, setListingToDelete] = useState(null);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false); // New state for sign-out modal
   const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
   const cloudName = import.meta.env.VITE_CLOUD_NAME;
 
   const dispatch = useDispatch();
 
+  // File upload function
   function handleFileUpload(file) {
     const data = new FormData();
     data.append("file", file);
@@ -69,10 +74,12 @@ export default function Profile() {
     xhr.send(data);
   }
 
+  // Handle form input changes
   function handleChange(e) {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   }
 
+  // Handle form submission
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -99,6 +106,7 @@ export default function Profile() {
     }
   }
 
+  // Handle delete account
   async function handleDeleteUser() {
     try {
       dispatch(deleteUserStart());
@@ -113,9 +121,12 @@ export default function Profile() {
       dispatch(deleteUserSuccess(data));
     } catch (error) {
       dispatch(deleteUserFailure(error.message));
+    } finally {
+      setIsDeleteAccountModalOpen(false); // Close the modal after deletion
     }
   }
 
+  // Handle sign out
   async function handleSignoutUser() {
     try {
       dispatch(signOutUserStart());
@@ -128,9 +139,12 @@ export default function Profile() {
       dispatch(signOutUserSuccess(data));
     } catch (error) {
       dispatch(signOutUserFailure(error.message));
+    } finally {
+      setIsSignOutModalOpen(false); // Close the modal after sign-out
     }
   }
 
+  // Handle show listings
   async function handleShowListings() {
     setShowListingsError(false);
     try {
@@ -143,7 +157,6 @@ export default function Profile() {
       }
       if (data.length === 0) {
         setUserListings([]);
-        setEmptyData(true);
         return;
       }
       setUserListings(data);
@@ -153,21 +166,7 @@ export default function Profile() {
     }
   }
 
-  useEffect(() => {
-    if (file) {
-      handleFileUpload(file);
-    }
-  }, [file]);
-
-  useEffect(() => {
-    if (updateSuccess) {
-      const timer = setTimeout(() => {
-        setUpdateSuccess(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [updateSuccess]);
-
+  // Handle listing delete
   const handleListingDelete = async (listingId) => {
     try {
       const res = await fetch(`/api/listing/delete/${listingId}`, {
@@ -185,7 +184,37 @@ export default function Profile() {
       );
     } catch (error) {
       console.log(error.message);
+    } finally {
+      setIsModalOpen(false);
+      setListingToDelete(null);
     }
+  };
+
+  // Confirmation Modal Component
+  const ConfirmationModal = ({ isOpen, onClose, onConfirm, message }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-lg font-semibold mb-4">{message}</h2>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={onClose}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -193,6 +222,7 @@ export default function Profile() {
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+        {/* File input and profile image */}
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -217,6 +247,8 @@ export default function Profile() {
             ""
           )}
         </p>
+
+        {/* Form inputs */}
         <input
           onChange={handleChange}
           defaultValue={currentUser.username}
@@ -255,25 +287,29 @@ export default function Profile() {
         </Link>
       </form>
 
+      {/* Delete Account and Sign Out */}
       <div className="flex justify-between mt-2">
         <span
-          onClick={handleDeleteUser}
+          onClick={() => setIsDeleteAccountModalOpen(true)} // Open delete account modal
           className="text-red-700 cursor-pointer"
         >
           Delete account
         </span>
         <span
-          onClick={handleSignoutUser}
+          onClick={() => setIsSignOutModalOpen(true)} // Open sign-out modal
           className="text-red-700 cursor-pointer"
         >
           Sign out
         </span>
       </div>
 
+      {/* Error and Success Messages */}
       <p className="text-red-700 mt-5">{error ? error : " "}</p>
       <p className="text-green-700 mt-5">
         {updateSuccess ? "User updated successfully!" : " "}
       </p>
+
+      {/* Show Listings Button */}
       <button onClick={handleShowListings} className="text-green-700 w-full ">
         Show Listings
       </button>
@@ -281,6 +317,7 @@ export default function Profile() {
         {showListingsError ? "Error showing listings" : ""}
       </p>
 
+      {/* User Listings */}
       {userListings && userListings.length > 0 && (
         <div className="flex flex-col gap-4">
           <h1 className="text-center mt-7 text-2xl font-semibold">
@@ -307,7 +344,10 @@ export default function Profile() {
 
               <div className="flex flex-col items-center">
                 <button
-                  onClick={() => handleListingDelete(listing._id)}
+                  onClick={() => {
+                    setListingToDelete(listing._id);
+                    setIsModalOpen(true);
+                  }}
                   className="text-red-700 uppercase"
                 >
                   Delete
@@ -320,6 +360,28 @@ export default function Profile() {
           ))}
         </div>
       )}
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => handleListingDelete(listingToDelete)}
+        message="Are you sure you want to delete this listing?"
+      />
+
+      <ConfirmationModal
+        isOpen={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+        onConfirm={handleDeleteUser}
+        message="Are you sure you want to delete your account? This action cannot be undone."
+      />
+
+      <ConfirmationModal
+        isOpen={isSignOutModalOpen}
+        onClose={() => setIsSignOutModalOpen(false)}
+        onConfirm={handleSignoutUser}
+        message="Are you sure you want to sign out?"
+      />
     </div>
   );
 }

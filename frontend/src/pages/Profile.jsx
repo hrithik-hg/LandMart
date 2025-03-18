@@ -26,7 +26,8 @@ export default function Profile() {
   const [userListings, setUserListings] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [listingToDelete, setListingToDelete] = useState(null);
-  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
+    useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false); // New state for sign-out modal
   const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
   const cloudName = import.meta.env.VITE_CLOUD_NAME;

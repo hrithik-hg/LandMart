@@ -1,13 +1,13 @@
-import { set } from "mongoose";
-import  React, {useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CreateListing = () => {
   const [files, setFiles] = useState([]);
   const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
   const cloudName = import.meta.env.VITE_CLOUD_NAME;
   const { currentUser } = useSelector((state) => state.user);
+  const params = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -29,7 +29,21 @@ const CreateListing = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
+    useEffect(() => {
+    const fetchListing = async () => {
+      const listingId = params.listingId;
+      const res = await fetch(`/api/listing/get/${listingId}`);
+      const data = await res.json();
+
+      if (data.success === false) {
+        console.log(data.message);
+      }
+      setFormData(data);
+    };
+    fetchListing();
+  }, []);
+
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const data = new FormData();
@@ -132,43 +146,42 @@ const CreateListing = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e){
     e.preventDefault();
     try {
-      if (formData.imageUrls.length < 1)
-        return setError("You must upload at least one image");
-      if (+formData.regularPrice < formData.discountedPrice)
-        return set("Discount price must be lower than regular price");
+      if(formData.imageUrls.length < 1) return setError('You must upload atleast one image');
+      if(+formData.regularPrice < +formData.discountPrice) return setError('Discounted Price must be lower than regular price');
       setLoading(true);
-      setError(false);
-      const res = await fetch("/api/listing/create", {
-        method: "POST",
+
+      const res = await fetch(`/api/listing/update/${params.listingId}`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
-          userRef: currentUser._id,
-        }),
-      });
+          userRef: currentUser._id
+        })
+      })
 
       const data = await res.json();
       setLoading(false);
-      if (data.success === false) {
+      if(data.success === false){
         setError(data.message);
       }
-
       navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
-  };
+  }
+
+
 
   return (
     <main className="p-3 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-center my-7">
-        Create a Listing
+        Update a Listing
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 flex-1">
@@ -373,7 +386,7 @@ const CreateListing = () => {
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95"
           >
-            {loading ? "Creating..." : "Create Listing"}
+            {loading ? "Creating..." : "Update Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>

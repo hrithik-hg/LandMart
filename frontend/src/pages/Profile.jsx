@@ -28,11 +28,20 @@ export default function Profile() {
   const [listingToDelete, setListingToDelete] = useState(null);
   const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] =
     useState(false);
-  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false); // New state for sign-out modal
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
   const cloudName = import.meta.env.VITE_CLOUD_NAME;
 
   const dispatch = useDispatch();
+
+  // Disable scrolling when any modal is open
+  useEffect(() => {
+    if (isModalOpen || isDeleteAccountModalOpen || isSignOutModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isModalOpen, isDeleteAccountModalOpen, isSignOutModalOpen]);
 
   // File upload function
   function handleFileUpload(file) {
@@ -196,7 +205,7 @@ export default function Profile() {
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-lg font-semibold mb-4">{message}</h2>
           <div className="flex justify-end gap-4">
@@ -220,6 +229,11 @@ export default function Profile() {
 
   return (
     <div className="p-3 max-w-lg mx-auto">
+      {/* Overlay for modals */}
+      {(isModalOpen || isDeleteAccountModalOpen || isSignOutModalOpen) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+      )}
+
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -291,13 +305,13 @@ export default function Profile() {
       {/* Delete Account and Sign Out */}
       <div className="flex justify-between mt-2">
         <span
-          onClick={() => setIsDeleteAccountModalOpen(true)} // Open delete account modal
+          onClick={() => setIsDeleteAccountModalOpen(true)}
           className="text-red-700 cursor-pointer"
         >
           Delete account
         </span>
         <span
-          onClick={() => setIsSignOutModalOpen(true)} // Open sign-out modal
+          onClick={() => setIsSignOutModalOpen(true)}
           className="text-red-700 cursor-pointer"
         >
           Sign out

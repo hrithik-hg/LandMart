@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
+import {useSelector} from 'react-redux';
 import {
   FaShare,
   FaBath,
@@ -12,6 +13,7 @@ import {
   FaParking,
 } from "react-icons/fa";
 import "swiper/css/bundle";
+import Contact from "../components/Contact";
 
 const Listing = () => {
   SwiperCore.use([Navigation]);
@@ -21,6 +23,7 @@ const Listing = () => {
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState(false);
+  const {currentUser} = useSelector(state=> state.user);
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -28,11 +31,11 @@ const Listing = () => {
         setLoading(true);
         const res = await fetch(`/api/listing/get/${params.listingId}`);
 
-        // Handle non-JSON responses
+
         const text = await res.text();
         let data;
         try {
-          data = JSON.parse(text); // Try parsing as JSON
+          data = JSON.parse(text);
         } catch (err) {
           console.error("API did not return JSON:", text);
           throw new Error("Server returned non-JSON response");
@@ -126,26 +129,32 @@ const Listing = () => {
 
             <ul className="text-green-900 font-semibold text-sm flex flex-wrap items-center gap-4 sm:gap-6">
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaBed className="text-lg"/>
-                {listing.bedrooms > 1 ? `${listing.bedrooms} beds` : `${listing.bedrooms} bed`}
-
+                <FaBed className="text-lg" />
+                {listing.bedrooms > 1
+                  ? `${listing.bedrooms} beds`
+                  : `${listing.bedrooms} bed`}
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaBath className="text-lg"/>
-                {listing.bathrooms > 1 ? `${listing.bedrooms} baths` : `${listing.bathrooms} bath`}
-
+                <FaBath className="text-lg" />
+                {listing.bathrooms > 1
+                  ? `${listing.bedrooms} baths`
+                  : `${listing.bathrooms} bath`}
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaParking className="text-lg"/>
-                {listing.parking ? 'Parking spot' : 'No Parking'}
-
+                <FaParking className="text-lg" />
+                {listing.parking ? "Parking spot" : "No Parking"}
               </li>
               <li className="flex items-center gap-1 whitespace-nowrap">
-                <FaChair className="text-lg"/>
-                {listing.furnished > 1 ? 'Furnished': 'Unfurnished'}
-
+                <FaChair className="text-lg" />
+                {listing.furnished > 1 ? "Furnished" : "Unfurnished"}
               </li>
             </ul>
+            {currentUser && listing.userRef !== currentUser._id && !contact && (
+              <button onClick={()=>setContact(true)} className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95">
+                Contact Landlord
+              </button>
+            )}
+            {contact && <Contact listing={listing}/>}
           </div>
         </>
       )}

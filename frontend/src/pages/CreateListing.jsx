@@ -1,5 +1,4 @@
-import { set } from "mongoose";
-import  React, {useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +18,7 @@ const CreateListing = () => {
     bedrooms: 1,
     bathrooms: 1,
     regularPrice: 5000,
-    discountedPrice: 0,
+    discountPrice: 0, // renamed to match the input id
     offer: false,
     parking: false,
     furnished: false,
@@ -29,7 +28,7 @@ const CreateListing = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const storeImage = (file) => {
     return new Promise((resolve, reject) => {
       const data = new FormData();
@@ -49,13 +48,13 @@ const CreateListing = () => {
           const response = JSON.parse(xhr.responseText);
           resolve(response.url);
         } else {
-          setUploadError(`Upload failed with status: ${xhr.status}`);
+          setImageUploadError(`Upload failed with status: ${xhr.status}`);
           reject(`Upload failed with status: ${xhr.status}`);
         }
       };
 
       xhr.onerror = () => {
-        setUploadError("An error occurred during the upload.");
+        setImageUploadError("An error occurred during the upload.");
         reject("An error occurred during the upload.");
       };
 
@@ -102,13 +101,14 @@ const CreateListing = () => {
   };
 
   const handleChange = (e) => {
+    // For sale or rent toggling
     if (e.target.id === "sale" || e.target.id === "rent") {
       setFormData({
         ...formData,
         type: e.target.id,
       });
     }
-
+    // For checkboxes
     if (
       e.target.id === "parking" ||
       e.target.id === "furnished" ||
@@ -119,7 +119,7 @@ const CreateListing = () => {
         [e.target.id]: e.target.checked,
       });
     }
-
+    // For text, number, and textarea inputs
     if (
       e.target.type === "number" ||
       e.target.type === "text" ||
@@ -134,13 +134,17 @@ const CreateListing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Validate that at least one image is uploaded
+    if (formData.imageUrls.length < 1) {
+      return setError("You must upload at least one image");
+    }
+    // Validate discount price only if offer is true
+    if (formData.offer && +formData.regularPrice < +formData.discountPrice) {
+      return setError("Discount price must be lower than regular price");
+    }
+    setLoading(true);
+    setError(false);
     try {
-      if (formData.imageUrls.length < 1)
-        return setError("You must upload at least one image");
-      if (+formData.regularPrice < formData.discountedPrice)
-        return set("Discount price must be lower than regular price");
-      setLoading(true);
-      setError(false);
       const res = await fetch("/api/listing/create", {
         method: "POST",
         headers: {
@@ -156,8 +160,8 @@ const CreateListing = () => {
       setLoading(false);
       if (data.success === false) {
         setError(data.message);
+        return;
       }
-
       navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
@@ -209,7 +213,7 @@ const CreateListing = () => {
                 id="sale"
                 className="w-5"
                 onChange={handleChange}
-                checked={formData.type == "sale"}
+                checked={formData.type === "sale"}
               />
               <span>Sell</span>
             </div>
@@ -219,11 +223,11 @@ const CreateListing = () => {
                 id="rent"
                 className="w-5"
                 onChange={handleChange}
-                checked={formData.type == "rent"}
+                checked={formData.type === "rent"}
               />
               <span>Rent</span>
             </div>
-            <div className="flex gap-4 ">
+            <div className="flex gap-4">
               <div className="flex gap-2">
                 <input
                   type="checkbox"
@@ -321,14 +325,14 @@ const CreateListing = () => {
           </div>
         </div>
 
-        <div className="flex flex-col flex-1 gap-4 ">
-          <p className="font-semibold ">
+        <div className="flex flex-col flex-1 gap-4">
+          <p className="font-semibold">
             Image:
             <span className="font-normal text-gray-600 ml-2">
               The first image will be cover (max 6)
             </span>
           </p>
-          <div className=" flex gap-4">
+          <div className="flex gap-4">
             <input
               onChange={(e) => setFiles(e.target.files)}
               className="p-3 border border-gray-300 rounded w-full"

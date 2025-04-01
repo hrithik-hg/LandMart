@@ -19,7 +19,7 @@ const CreateListing = () => {
     bedrooms: 1,
     bathrooms: 1,
     regularPrice: 5000,
-    discountedPrice: 0,
+    discountPrice: 0,
     offer: false,
     parking: false,
     furnished: false,
@@ -386,7 +386,7 @@ const CreateListing = () => {
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95"
           >
-            {loading ? "Creating..." : "Update Listing"}
+            {loading ? "Updating..." : "Update Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>

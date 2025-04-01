@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
-import {useSelector} from 'react-redux';
+import { useSelector } from "react-redux";
 import {
   FaShare,
   FaBath,
@@ -23,14 +23,13 @@ const Listing = () => {
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState(false);
-  const {currentUser} = useSelector(state=> state.user);
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchListing = async () => {
       try {
         setLoading(true);
         const res = await fetch(`/api/listing/get/${params.listingId}`);
-
 
         const text = await res.text();
         let data;
@@ -98,9 +97,11 @@ const Listing = () => {
             </p>
           )}
 
+          
+
           <div className="flex flex-col max-w-4xl mx-auto p-3 m-7 gap-4">
             <p className="font bold">
-              {listing.name} - ${" "}
+              {listing.name} - ₹{" "}
               {listing.offer
                 ? listing.discountPrice.toLocaleString("en-US")
                 : listing.regularPrice.toLocaleString("en-US")}
@@ -118,7 +119,11 @@ const Listing = () => {
               </p>
               {listing.offer && (
                 <p className="bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md">
-                  ${+listing.regularPrice - +listing.discountPrice}
+                  ₹{' '}
+                  {(
+                    (listing.regularPrice || 0) - (listing.discountPrice || 0)
+                  ).toLocaleString("en-US")}{" "}
+                  OFF
                 </p>
               )}
             </div>
@@ -150,11 +155,14 @@ const Listing = () => {
               </li>
             </ul>
             {currentUser && listing.userRef !== currentUser._id && !contact && (
-              <button onClick={()=>setContact(true)} className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95">
+              <button
+                onClick={() => setContact(true)}
+                className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95"
+              >
                 Contact Landlord
               </button>
             )}
-            {contact && <Contact listing={listing}/>}
+            {contact && <Contact listing={listing} />}
           </div>
         </>
       )}

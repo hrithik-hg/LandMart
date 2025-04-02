@@ -72,7 +72,7 @@ export const getListings = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 9;
     const startIndex = parseInt(req.query.startIndex) || 0;
     
-    console.log('Received query params:', req.query); // Log incoming queries
+
 
     let offer = req.query.offer;
     if (offer === undefined || offer === 'false') {
@@ -106,18 +106,16 @@ export const getListings = async (req, res, next) => {
       type
     };
 
-    console.log('Final query:', query); // Log the final query
+  
 
     const listings = await Listing.find(query)
       .sort({ [sort]: order })
       .limit(limit)
       .skip(startIndex);
 
-    console.log('Found listings:', listings.length); // Log results count
     return res.status(200).json(listings);
 
   } catch (error) {
-    console.error('Error in getListings:', error);
     next(error);
   }
 };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
-const CreateListing = () => {
+const UpdateListing = () => {
   const [files, setFiles] = useState([]);
   const uploadPreset = import.meta.env.VITE_UPLOAD_PRESET;
   const cloudName = import.meta.env.VITE_CLOUD_NAME;
@@ -19,7 +19,7 @@ const CreateListing = () => {
     bedrooms: 1,
     bathrooms: 1,
     regularPrice: 5000,
-    discountPrice: 0,
+    discountedPrice: 0,
     offer: false,
     parking: false,
     furnished: false,
@@ -386,7 +386,7 @@ const CreateListing = () => {
             disabled={loading || uploading}
             className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95"
           >
-            {loading ? "Updating..." : "Update Listing"}
+            {loading ? "Creating..." : "Update Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
@@ -395,4 +395,4 @@ const CreateListing = () => {
   );
 };
 
-export default CreateListing;
+export default UpdateListing;

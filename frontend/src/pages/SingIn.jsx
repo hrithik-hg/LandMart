@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux"; // Import useDispatch
+import { useDispatch, useSelector } from "react-redux";
 import {
   signInStart,
   signInSuccess,
@@ -12,7 +12,7 @@ const SignIn = () => {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Initialize dispatch
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -24,7 +24,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      dispatch(signInStart()); // Dispatch sign-in start action
+      dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -33,14 +33,16 @@ const SignIn = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+      
       if (data.success === false) {
-        dispatch(signInFailure(data.message)); // Dispatch sign-in failure action
+        dispatch(signInFailure(data.message));
         return;
       }
-      dispatch(signInSuccess(data)); // Dispatch sign-in success action
+      
+      dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
-      dispatch(signInFailure(error.message)); // Dispatch sign-in failure action
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -54,6 +56,7 @@ const SignIn = () => {
           id="username"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <input
           type="password"
@@ -61,23 +64,30 @@ const SignIn = () => {
           id="password"
           className="border p-3 rounded-lg"
           onChange={handleChange}
+          required
         />
         <button
           disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
         >
-          {loading ? "Loading.." : "Sign In"}
+          {loading ? "Loading..." : "Sign In"}
         </button>
-        <OAuth/>
+        <OAuth />
       </form>
 
-      <div className="flex gap-2 mt-5">
+      <div className="flex gap-2 mt-5 justify-center">
         <p>Don't have an account?</p>
-        <Link to="/sign-up">
-          <span className="text-blue-700">Sign Up</span>
+        <Link to="/sign-up" className="text-blue-700 hover:underline">
+          Sign Up
         </Link>
       </div>
-      {error && <p className="text-red-500 mt-5">{error}</p>}
+      {error && (
+        <p className="text-red-500 mt-5 text-center">
+          {error.includes("ECONNREFUSED") 
+            ? "Connection error - please check your network" 
+            : error}
+        </p>
+      )}
     </div>
   );
 };
